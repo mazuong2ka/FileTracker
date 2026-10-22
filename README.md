@@ -1,90 +1,138 @@
-FileTracker 1.0 — Lịch sử file trên Windows
-=========================================
+<div align="center">
 
-BẮT ĐẦU
-1. Giải nén toàn bộ gói ZIP vào một thư mục cố định.
-2. Mở FileTracker.exe. Giữ FileTracker.exe.config cùng thư mục.
-3. Chờ quét lần đầu; kết quả tự cập nhật trong khi quét.
+# 📁 FileTracker
 
-Yêu cầu: Windows 10/11 x64 và .NET Framework 4.8. Không cần Python,
-Node.js, kết nối mạng hay quyền Administrator. App chưa ký số thương mại.
+**See what changed on your Windows PC: recent files, change history and large files in one place.**
 
-PHẠM VI MẶC ĐỊNH
-- Program Files (bản 64-bit)
+**English** | [Tiếng Việt](README.vi.md)
+
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-0078D6?logo=windows&logoColor=white)
+![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.8-512BD4?logo=dotnet&logoColor=white)
+![Admin](https://img.shields.io/badge/admin%20rights-not%20required-2ea44f)
+![Data](https://img.shields.io/badge/data-stays%20on%20your%20PC-2ea44f)
+[![Release](https://img.shields.io/github/v/release/mazuong2ka/FileTracker?label=release)](https://github.com/mazuong2ka/FileTracker/releases/latest)
+
+[⬇️ **Download the latest release**](https://github.com/mazuong2ka/FileTracker/releases/latest)
+
+</div>
+
+<!-- Add a screenshot here, for example:
+<p align="center"><img src="docs/screenshot.png" width="800" alt="FileTracker"></p>
+-->
+
+---
+
+## ✨ Features
+
+| | |
+|---|---|
+| 🕘 **Recent files** | Grouped by day; sort by created date, modified date or size. |
+| 🔄 **Change history** | Added, modified, deleted and renamed/moved files inside the watched scope. |
+| 🔎 **Search & filters** | Search by name or path; filter by folder, file type and time range. |
+| ⭐ **Starred files** | Star files to reopen them quickly. |
+| 📦 **Large files** | Files of 100 MB or more, largest first. |
+| 📂 **Quick actions** | Open a file, open its folder, copy its path. Executable files ask for confirmation. |
+| 📤 **CSV export** | Export by the current filter (up to 50,000 rows per export, with a notice if the limit is hit). |
+| ⏯️ **Pause / resume** | Manual rescan, plus automatic sync every 30 minutes. |
+| 🔔 **System tray** | Runs in the tray. Closing the window does not quit the app by default. |
+| 🚀 **Start with Windows** | Optional, **off** by default. |
+
+FileTracker **never edits, moves or deletes your original files**.
+
+## 🚀 Quick start
+
+1. Extract the whole ZIP into a permanent folder.
+2. Run `FileTracker.exe`. Keep `FileTracker.exe.config` in the same folder.
+3. Wait for the first scan. Results update while it runs.
+
+**Requirements:** Windows 10/11 x64 and .NET Framework 4.8. No Python, Node.js, internet connection or Administrator rights needed. The app is not signed with a commercial code-signing certificate, so Windows may show a security warning the first time you run it.
+
+## 🎯 Default scope
+
+- Program Files (64-bit)
 - Program Files (x86)
-- Downloads của tài khoản Windows hiện tại, kể cả vị trí đã chuyển
-- D:\ và các thư mục con
+- Downloads of the current Windows account, including relocated folders
+- `D:\` and its subfolders
 
-Trong “Thư mục & Cài đặt” bạn có thể thêm/bỏ phạm vi. Sau khi lưu,
-chọn Thoát ở khay hệ thống rồi mở lại app để áp dụng phạm vi mới.
-Không có thao tác sửa, di chuyển hoặc xóa file gốc trong app.
+You can add or remove locations in **Folders & Settings** (*Thư mục & Cài đặt*). After saving, choose **Exit** from the tray icon and reopen the app to apply the new scope.
 
-CHỨC NĂNG HẰNG NGÀY
-- File gần đây: nhóm theo ngày, sắp theo ngày tạo, ngày sửa hoặc dung lượng.
-- Lịch sử thay đổi: thêm, sửa, xóa và đổi tên/di chuyển trong phạm vi theo dõi.
-- Tìm tên/đường dẫn; lọc thư mục, loại file và thời gian.
-- File đã đánh dấu: lưu dấu sao để mở lại nhanh.
-- File lớn: xem các file từ 100 MB, sắp lớn nhất trước.
-- Mở file, mở thư mục chứa, sao chép đường dẫn. File thực thi cần xác nhận.
-- Xuất CSV theo bộ lọc (tối đa 50.000 dòng/lần, có thông báo nếu chạm giới hạn).
-- Tạm dừng/tiếp tục; quét lại thủ công và tự đồng bộ mỗi 30 phút.
-- Chạy dưới khay hệ thống. Đóng cửa sổ mặc định chưa thoát app.
-- Tùy chọn khởi động cùng Windows, mặc định TẮT.
-- Ctrl+F: tìm; Ctrl+C trên dòng được chọn: copy đường dẫn; F5: quét lại.
+## ⌨️ Keyboard shortcuts
 
-CÁCH HIỂU THỜI GIAN
-“Ngày tạo” và “Ngày sửa” là metadata Windows; không nhất thiết là lúc bạn
-tải/lưu file, vì sao chép, giải nén và ứng dụng có thể ảnh hưởng các mốc này.
-Lần quét đầu lập danh sách file có sẵn, không dựng lại lịch sử thao tác cũ.
+| Shortcut | Action |
+|---|---|
+| `Ctrl` + `F` | Search |
+| `Ctrl` + `C` | Copy the path of the selected row |
+| `F5` | Rescan |
 
-Sự kiện không có chữ “Phát hiện” được bộ theo dõi nhận khi app đang chạy.
-“Phát hiện thêm/sửa/mất” là kết quả đối chiếu khi quét lại; thời gian hiển thị
-là lúc phát hiện, không phải thời điểm chính xác đã thao tác khi app tắt.
-Theo dõi dựa vào thông báo filesystem và đối chiếu metadata, không phải
-nhật ký kiểm toán đầy đủ. Một số sự kiện quá nhanh, trùng lặp, trong lúc
-tạm dừng/khởi động lại hoặc tràn bộ đệm có thể không được ghi đầy đủ.
-File được tạo rồi xóa trong thời gian app tắt không thể được khôi phục lịch sử.
-App không lưu nội dung hoặc phiên bản cũ và không khôi phục file đã xóa.
-Đổi tên thư mục được đối soát thành file thêm/mất; chuyển giữa hai phạm vi
-có thể hiển thị là Xóa và Thêm, thay vì một sự kiện Di chuyển.
+## 🕒 How to read the timestamps
 
-HIỆU NĂNG VÀ PHẠM VI
-Mỗi trang hiển thị 200 mục. Lịch sử được giới hạn về 100.000 sự kiện gần
-nhất sau mỗi lần đồng bộ. Chỉ mục file có sẵn được lưu lâu dài.
-“Ẩn file kỹ thuật” chỉ lọc danh sách; có thể bỏ chọn để thấy DLL, log, v.v.
-Mặc định bỏ qua .git, node_modules, __pycache__, .venv, venv; có thể đổi
-trong cài đặt. Thùng rác, System Volume Information, junction/symlink thư mục
-và thư mục không đủ quyền đọc được bỏ qua. Không vượt quyền truy cập.
-Ổ đĩa mất kết nối hoặc thư mục không đọc được không bị coi là đã xóa hết file.
-Quét ổ D lớn có thể mất nhiều phút và tăng hoạt động đọc đĩa lúc đầu.
+- **Created** and **Modified** come from Windows metadata. They are not necessarily when you downloaded or saved the file, because copying, extracting and other apps can change them.
+- The first scan builds a list of existing files. It does **not** reconstruct past activity.
+- Events **without** the word "Detected" (*Phát hiện*) were captured by the watcher while the app was running.
+- Events labelled **Detected added / modified / missing** come from a rescan. The time shown is when the change was detected, not the exact moment it happened while the app was off.
 
-DỮ LIỆU VÀ QUYỀN RIÊNG TƯ
-App không có chức năng gửi dữ liệu qua mạng. Chỉ lưu tên, đường dẫn,
-metadata, dấu sao và sự kiện trong:
-  %LOCALAPPDATA%\FileTracker
-Database chứa đường dẫn cá nhân, nên chỉ chia sẻ CSV/database khi bạn muốn.
-Gói phát hành không chứa chỉ mục, cấu hình cá nhân hoặc dữ liệu thử nghiệm.
+<details>
+<summary><b>⚠️ Limitations (please read)</b></summary>
 
-Chế độ portable (tùy chọn): tạo file trống tên FileTracker.portable cùng
-thư mục FileTracker.exe trước khi mở app. Dữ liệu sẽ nằm trong thư mục Data
-bên cạnh app. Cần quyền ghi vào thư mục đó. Không đặt Data trong Program Files.
-Cũng có thể chỉ định: FileTracker.exe --data-dir "C:\duong-dan\Data"
-Tham số --tray mở app ẩn dưới khay hệ thống.
+<br>
 
-Để sao lưu database, Thoát app hẳn rồi sao chép toàn bộ thư mục dữ liệu.
-Để gỡ app: tắt “Khởi động cùng Windows” trong app, chọn Thoát ở khay,
-rồi xóa thư mục đã giải nén. Xóa thư mục dữ liệu là tùy chọn và sẽ mất lịch sử.
-Nếu đã bật tự khởi động, không di chuyển file EXE mà chưa cập nhật cài đặt.
+- FileTracker relies on filesystem notifications and metadata comparison. **It is not a full audit log.** Very fast or duplicated events, events during pause/restart, and buffer overflows may not be recorded completely.
+- A file created and deleted while the app was off cannot be recovered from history.
+- The app does not store file contents or old versions, and it cannot restore deleted files.
+- Renaming a folder is reconciled as files added/missing. Moving files between two watched scopes may appear as *Deleted* + *Added* rather than one *Moved* event.
+- Each page shows 200 items. History is trimmed to the most recent 100,000 events after each sync. The file index is stored permanently.
+- "Hide technical files" only filters the list. Untick it to see DLLs, logs, etc.
+- By default these are skipped: `.git`, `node_modules`, `__pycache__`, `.venv`, `venv` (configurable in Settings). Recycle Bin, System Volume Information, directory junctions/symlinks and folders you do not have permission to read are also skipped. FileTracker never goes beyond your access rights.
+- A disconnected drive or unreadable folder is **not** treated as "all files deleted".
+- Scanning a large `D:` drive can take several minutes and increases disk reads at first.
 
-MÃ NGUỒN
-Core.cs: chỉ mục SQLite (winsqlite3 có sẵn trong Windows), bộ theo dõi,
-quét đối chiếu, lưu cấu hình.
-App.cs: giao diện tiếng Việt, tìm/lọc, dấu sao, CSV, khay và cài đặt.
-build.ps1: biên dịch bằng C# compiler đi kèm .NET Framework.
-tests/IntegrationTests.cs: kiểm tra chức năng trong thư mục tạm riêng.
+</details>
 
-KIỂM TRA ĐÃ THỰC HIỆN
-Lập chỉ mục ban đầu không tạo lịch sử giả; thêm/sửa file trực tiếp; tên file
-Unicode; đổi tên giữ đường dẫn cũ và dấu sao; xóa; bỏ qua thư mục lập trình;
-đối chiếu sau tạm dừng/mở lại; ổ đĩa không sẵn sàng; toàn vẹn SQLite;
-lưu/đọc lại cấu hình. Kiểm tra không sửa file cá nhân của bạn.
+## 🔒 Privacy & data
+
+FileTracker has no feature that sends data over the network. It only stores file names, paths, metadata, stars and events in:
+
+```text
+%LOCALAPPDATA%\FileTracker
+```
+
+The database contains personal paths, so share a CSV or the database only when you mean to.
+The release package contains no index, personal settings or test data.
+
+### Portable mode (optional)
+
+Create an empty file named `FileTracker.portable` next to `FileTracker.exe` **before** launching the app. Data will then live in a `Data` folder next to the app (write permission required; do not put `Data` inside Program Files).
+
+You can also choose the folder explicitly:
+
+```powershell
+FileTracker.exe --data-dir "C:\path\to\Data"
+```
+
+Use `--tray` to start the app hidden in the system tray.
+
+### Backup
+
+Fully **Exit** the app, then copy the whole data folder.
+
+### Uninstall
+
+1. Turn off **Start with Windows** inside the app.
+2. Choose **Exit** from the tray icon.
+3. Delete the extracted folder.
+4. *(Optional)* Delete the data folder. This erases your history.
+
+> If you enabled auto-start, do not move the EXE without updating the setting first.
+
+## 🧱 Source code
+
+| File | Purpose |
+|---|---|
+| `Core.cs` | SQLite index (Windows built-in `winsqlite3`), watcher, reconciliation scan, settings storage |
+| `App.cs` | Vietnamese UI, search/filters, stars, CSV export, tray and settings |
+| `build.ps1` | Builds with the C# compiler that ships with .NET Framework |
+| `tests/IntegrationTests.cs` | Functional tests that run in their own temporary folder |
+
+## ✅ What has been tested
+
+The initial index creates no fake history; live add/modify; Unicode file names; rename keeps the old path and star; delete; skipping developer folders; reconciliation after pause/reopen; unavailable drive; SQLite integrity; saving and reloading settings. Tests never modify your personal files.
