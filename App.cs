@@ -37,11 +37,11 @@ public class MainForm : Form {
     TextBox search;ComboBox roots,kinds,dates,sort;CheckBox hideTech;SmoothList list;
     Button pause,prev,next;NotifyIcon tray;
     System.Windows.Forms.Timer timer;List<Button> navigation=new List<Button>();
-    List<string[]> rows=new List<string[]>();string mode="files";int page=0,queryVersion=0;bool querying=false,dirty=true,quitting=false;
+    List<string[]> rows=new List<string[]>();string mode="files",renderedMode="";int page=0,queryVersion=0;bool querying=false,dirty=true,quitting=false,shutdownComplete=false;
     long lastRevision=-1;DateTime lastSearch=DateTime.MinValue,lastRefresh=DateTime.MinValue;
     public MainForm(string dir,Settings s,bool startHidden) {
         dataDir=dir;config=s;engine=new MonitorEngine(dir,s);
-        Text="FileTracker";Size=new Size(1330,830);MinimumSize=new Size(1100,700);StartPosition=FormStartPosition.CenterScreen;
+        Text="FileTracker 1.1";Size=new Size(1330,830);MinimumSize=new Size(1100,700);StartPosition=FormStartPosition.CenterScreen;
         Font=new Font("Segoe UI",10);BackColor=Color.FromArgb(245,247,251);ForeColor=ink;Icon=SystemIcons.Application;
         BuildUI();
         tray=new NotifyIcon{Icon=SystemIcons.Application,Text="FileTracker · Theo dõi file",Visible=true};
@@ -49,7 +49,15 @@ public class MainForm : Form {
         tray.ContextMenuStrip=menu;tray.DoubleClick+=(o,e)=>ShowApp();
         timer=new System.Windows.Forms.Timer{Interval=650};timer.Tick+=(o,e)=>Tick();timer.Start();
         Shown+=(o,e)=>{engine.Start();if(startHidden) Hide();};
-        FormClosing+=(o,e)=>{if(!quitting&&e.CloseReason==CloseReason.UserClosing&&config.CloseToTray){e.Cancel=true;Hide();tray.ShowBalloonTip(2500,"FileTracker","Vẫn theo dõi trong khay hệ thống. Nhấp đôi biểu tượng để mở lại.",ToolTipIcon.Info);}else{quitting=true;timer.Stop();tray.Dispose();engine.Dispose();}};
+        FormClosing+=async(o,e)=>{
+            if(shutdownComplete)return;
+            e.Cancel=true;
+            if(!quitting&&e.CloseReason==CloseReason.UserClosing&&config.CloseToTray){Hide();tray.ShowBalloonTip(2500,"FileTracker","Vẫn theo dõi trong khay hệ thống. Nhấp đôi biểu tượng để mở lại.",ToolTipIcon.Info);return;}
+            if(engine.Stopping)return;
+            quitting=true;timer.Stop();status.Text="Đang dừng theo dõi…";
+            await Task.Run(()=>engine.Dispose());
+            shutdownComplete=true;tray.Dispose();Close();
+        };
         KeyPreview=true;KeyDown+=(o,e)=>{if(e.Control&&e.KeyCode==Keys.F){search.Focus();e.SuppressKeyPress=true;}if(e.KeyCode==Keys.F5){engine.RequestScan();dirty=true;e.SuppressKeyPress=true;}};
     }
     Label LabelAt(string text,int size,bool bold) {return new Label{Text=text,AutoSize=true,Font=new Font("Segoe UI",size,bold?FontStyle.Bold:FontStyle.Regular),ForeColor=ink};}
@@ -114,7 +122,7 @@ public class MainForm : Form {
         status.Text=engine.Status+(engine.Errors>0?" · "+engine.Errors+" lần không đọc được (bấm xem)":"");
         long revision=Interlocked.Read(ref engine.Revision);
         if(revision!=lastRevision&&DateTime.UtcNow-lastRefresh>TimeSpan.FromSeconds(engine.Scanning?5:2)){dirty=true;lastRevision=revision;}
-        if(dirty&&!querying&&DateTime.UtcNow-lastSearch>TimeSpan.FromMilliseconds(350)) RefreshRows();
+        if(Visible&&WindowState!=FormWindowState.Minimized&&dirty&&!querying&&DateTime.UtcNow-lastSearch>TimeSpan.FromMilliseconds(350)) RefreshRows();
     }
     class QuerySpec {public string Sql;public List<object> Args;}
     QuerySpec BuildQuery(bool export) {
@@ -137,9 +145,11 @@ public class MainForm : Form {
     async void RefreshRows() {
         querying=true;dirty=false;int version=queryVersion;QuerySpec spec=BuildQuery(false);bool events=mode=="events";string selected=Selected()==null?null:Selected()[0];
         try {
-            var result=await Task.Run(()=>engine.Database.Query(spec.Sql,spec.Args.ToArray()));
+            var result=await Task.Run(()=>engine.Reader.Query(spec.Sql,spec.Args.ToArray()));
             if(IsDisposed||quitting)return;if(version!=queryVersion){dirty=true;return;}
-            next.Enabled=result.Count>200;prev.Enabled=page>0;rows=result.Take(200).ToList();
+            next.Enabled=result.Count>200;prev.Enabled=page>0;var newRows=result.Take(200).ToList();
+            if(renderedMode==mode&&rows.Count==newRows.Count&&rows.Zip(newRows,(a,b)=>a.SequenceEqual(b)).All(same=>same)){lastRefresh=DateTime.UtcNow;return;}
+            int top=list.TopItem==null?0:list.TopItem.Index;rows=newRows;renderedMode=mode;
             list.BeginUpdate();list.Items.Clear();list.Groups.Clear();var groups=new Dictionary<string,ListViewGroup>();
             foreach(var r in rows) {
                 DateTime t=new DateTime(Convert.ToInt64(r[2]),DateTimeKind.Utc).ToLocalTime();
@@ -150,7 +160,7 @@ public class MainForm : Form {
                 if(events&&(r[3]=="Xóa"||r[3]=="Phát hiện mất"))item.ForeColor=Color.FromArgb(176,56,56);
                 list.Items.Add(item);if(r[0]==selected)item.Selected=true;
             }
-            list.EndUpdate();totals.Text=rows.Count==0?"Không có kết quả · thử đổi bộ lọc":rows.Count+" mục / trang · "+(events?"lịch sử ghi nhận":"file hiện có");paging.Text="Trang "+(page+1);lastRefresh=DateTime.UtcNow;
+            list.EndUpdate();if(top>0&&list.Items.Count>top)list.TopItem=list.Items[top];totals.Text=rows.Count==0?"Không có kết quả · thử đổi bộ lọc":rows.Count+" mục / trang · "+(events?"lịch sử ghi nhận":"file hiện có");paging.Text="Trang "+(page+1);lastRefresh=DateTime.UtcNow;
             if(rows.Count==0)detail.Text=engine.Scanning?"App đang quét lần đầu. Kết quả sẽ tự xuất hiện.":"Chưa có mục phù hợp. Thử bỏ bộ lọc hoặc chọn Đồng bộ lại.";
         } catch(Exception e) {if(!quitting)status.Text="Không tải được danh sách: "+e.Message;}
         finally{querying=false;}
@@ -172,14 +182,14 @@ public class MainForm : Form {
         }catch(Exception e){MessageBox.Show(e.Message,"Không mở được file");}
     }
     void CopyPath(){var r=Selected();if(r==null)return;try{Clipboard.SetText(r[5]);status.Text="Đã sao chép đường dẫn.";}catch(Exception e){MessageBox.Show(e.Message);}}
-    void Star(){var r=Selected();if(r==null)return;engine.Database.Exec("UPDATE files SET star=CASE WHEN star=1 THEN 0 ELSE 1 END WHERE path=?",r[5]);dirty=true;}
+    async void Star(){var r=Selected();if(r==null)return;try{await Task.Run(()=>engine.Database.Exec("UPDATE files SET star=CASE WHEN star=1 THEN 0 ELSE 1 END WHERE path=?",r[5]));dirty=true;}catch(Exception e){if(!quitting)MessageBox.Show(e.Message,"Không đánh dấu được file");}}
     static string Csv(string s){if(s.Length>0&&"=+-@\t\r\n".IndexOf(s[0])>=0)s="'"+s;return "\""+s.Replace("\"","\"\"")+"\"";}
     async void Export() {
         QuerySpec spec=BuildQuery(true);
         using(var dialog=new SaveFileDialog{Filter="CSV (*.csv)|*.csv",FileName="FileTracker-"+DateTime.Now.ToString("yyyy-MM-dd")+".csv"}) {
             if(dialog.ShowDialog()!=DialogResult.OK)return;
             try {
-                var data=await Task.Run(()=>engine.Database.Query(spec.Sql,spec.Args.ToArray()));
+                var data=await Task.Run(()=>engine.Reader.Query(spec.Sql,spec.Args.ToArray()));
                 using(var w=new StreamWriter(dialog.FileName,false,new UTF8Encoding(true))){w.WriteLine("Tên file,Thời gian,Loại hoặc hoạt động,Dung lượng (byte),Đường dẫn,Đường dẫn cũ");foreach(var r in data.Take(50000))w.WriteLine(String.Join(",",new[]{Path.GetFileName(r[5]),new DateTime(Convert.ToInt64(r[2]),DateTimeKind.Utc).ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"),r[3],r[4],r[5],r[6]}.Select(Csv)));}
                 MessageBox.Show("Đã xuất "+Math.Min(50000,data.Count)+" mục theo bộ lọc hiện tại."+(data.Count>50000?"\nĐã chạm giới hạn 50.000 mục; hãy lọc theo thư mục/ngày để xuất tiếp.":""),"Xuất CSV");
             }catch(Exception e){MessageBox.Show(e.Message,"Không xuất được CSV");}
