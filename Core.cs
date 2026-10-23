@@ -14,6 +14,7 @@ public class Settings {
     public List<string> Roots = new List<string>();
     public bool SkipDevFolders = true;
     public bool CloseToTray = true;
+    public string Language = "vi";
     public static string Normalize(string p) { return Path.GetFullPath(Environment.ExpandEnvironmentVariables(p)).TrimEnd('\\') + "\\"; }
     public static Settings Defaults() {
         var s = new Settings();
@@ -31,8 +32,9 @@ public class Settings {
         string p = Path.Combine(dir,"settings.json");
         if(!File.Exists(p)) return Defaults();
         var s = new JavaScriptSerializer().Deserialize<Settings>(File.ReadAllText(p));
-        if(s == null || s.Roots == null) throw new InvalidDataException("settings.json không hợp lệ.");
-        s.Roots = s.Roots.Select(Normalize).Distinct(StringComparer.OrdinalIgnoreCase).ToList(); return s;
+        if(s == null || s.Roots == null) throw new InvalidDataException(Loc.T("settings.json không hợp lệ."));
+        s.Roots = s.Roots.Select(Normalize).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        s.Language=s.Language=="en"?"en":"vi"; return s;
     }
     public void Save(string dir) {
         string p = Path.Combine(dir,"settings.json"), tmp=p+".tmp";
@@ -57,7 +59,7 @@ public sealed class Db : IDisposable {
     [DllImport("winsqlite3",CallingConvention=CallingConvention.Cdecl)] static extern IntPtr sqlite3_errmsg16(IntPtr db);
     public Db(string path,bool readOnly=false) {
         if(readOnly&&!File.Exists(path)) throw new FileNotFoundException(path);
-        if(sqlite3_open16(path,out db)!=0) throw new IOException("Không mở được cơ sở dữ liệu.");
+        if(sqlite3_open16(path,out db)!=0) throw new IOException(Loc.T("Không mở được cơ sở dữ liệu."));
         if(readOnly) {Exec("PRAGMA query_only=ON");Exec("PRAGMA busy_timeout=1000");return;}
         Exec("PRAGMA journal_mode=WAL"); Exec("PRAGMA synchronous=NORMAL"); Exec("PRAGMA busy_timeout=5000");
         Exec("CREATE TABLE IF NOT EXISTS files(path TEXT PRIMARY KEY COLLATE NOCASE,root TEXT COLLATE NOCASE,name TEXT,category TEXT,size INTEGER,created INTEGER,modified INTEGER,seen INTEGER,present INTEGER,star INTEGER DEFAULT 0)");
@@ -104,7 +106,7 @@ public sealed class MonitorEngine : IDisposable {
     public readonly Db Reader;
     public readonly Settings Config;
     public volatile bool Paused,Stopping,Scanning;
-    public volatile string Status="Chuẩn bị…";
+    public volatile string Status=Loc.T("Chuẩn bị…");
     public long Revision;
     public int Errors;
     public string LastError="";
@@ -146,7 +148,7 @@ public sealed class MonitorEngine : IDisposable {
         lock(watchers) {
             foreach(var w in watchers) w.Dispose(); watchers.Clear();
             foreach(string root in Config.Roots) {
-                if(!Directory.Exists(root)) {Warn("Không truy cập được: "+root);continue;}
+                if(!Directory.Exists(root)) {Warn(Loc.T("Không truy cập được: ")+root);continue;}
                 try {
                     var w=new FileSystemWatcher(root){IncludeSubdirectories=true,InternalBufferSize=65536,NotifyFilter=NotifyFilters.FileName|NotifyFilters.DirectoryName|NotifyFilters.LastWrite|NotifyFilters.Size};
                     string r=root;
@@ -154,7 +156,7 @@ public sealed class MonitorEngine : IDisposable {
                     w.Changed+=(o,e)=>Enqueue("Sửa",e.FullPath,"",r);
                     w.Deleted+=(o,e)=>Enqueue("Xóa",e.FullPath,"",r);
                     w.Renamed+=(o,e)=>Enqueue("Đổi tên / Di chuyển",e.FullPath,e.OldFullPath,r);
-                    w.Error+=(o,e)=>{Warn("Bộ theo dõi cần đồng bộ lại: "+r);RequestAutomaticScan();};
+                    w.Error+=(o,e)=>{Warn(Loc.T("Bộ theo dõi cần đồng bộ lại: ")+r);RequestAutomaticScan();};
                     w.EnableRaisingEvents=true;watchers.Add(w);
                 } catch(Exception e) {Warn(root+": "+e.Message);}
             }
@@ -235,7 +237,7 @@ public sealed class MonitorEngine : IDisposable {
         }
     }
     public void ScanRoot(string root) {
-        if(!Directory.Exists(root)) {Warn("Thư mục không sẵn sàng: "+root);return;}
+        if(!Directory.Exists(root)) {Warn(Loc.T("Thư mục không sẵn sàng: ")+root);return;}
         long started=Now;
         bool baseline=Database.Count("SELECT COUNT(*) FROM roots WHERE path=? AND baseline=1",root)==0;
         var stack=new Stack<string>();stack.Push(root);
@@ -253,7 +255,7 @@ public sealed class MonitorEngine : IDisposable {
                     if(Stopping||Paused) break;
                     if(Excluded(f.FullName))continue;
                     batch.Add(f);
-                    if(batch.Count==96){IndexBatch(batch,root,baseline,protectedPrefixes);count+=batch.Count;batch.Clear();Status="Đang quét nhẹ "+root+"  ·  "+count.ToString("N0")+" file";Drain();Thread.Sleep(15);}
+                    if(batch.Count==96){IndexBatch(batch,root,baseline,protectedPrefixes);count+=batch.Count;batch.Clear();Status=Loc.T("Đang quét nhẹ ")+root+"  ·  "+count.ToString("N0")+Loc.T(" file");Drain();Thread.Sleep(15);}
                 }
                 if(batch.Count>0&&!Stopping&&!Paused){IndexBatch(batch,root,baseline,protectedPrefixes);count+=batch.Count;Drain();Thread.Sleep(8);}
             } catch(IOException e) {protectedPrefixes.Add(Settings.Normalize(dir));Warn(e.Message);}
@@ -261,7 +263,7 @@ public sealed class MonitorEngine : IDisposable {
         }
         if(Stopping||Paused) return;
         // A missing/offline drive or unreadable subtree is not evidence of deletion.
-        if(!Directory.Exists(root)) {Warn("Mất kết nối thư mục trong lúc quét: "+root);return;}
+        if(!Directory.Exists(root)) {Warn(Loc.T("Mất kết nối thư mục trong lúc quét: ")+root);return;}
         if(!baseline) {
             var missing=Database.Query("SELECT path,size FROM files WHERE root=? AND present=1 AND seen<?",root,started);
             foreach(var row in missing) {
@@ -295,7 +297,7 @@ public sealed class MonitorEngine : IDisposable {
         DateTime nextScan=DateTime.UtcNow;
         try {
             while(!Stopping) {
-                if(Paused) {Status="Đã tạm dừng · Tiếp tục để đồng bộ lại";wake.WaitOne(500);continue;}
+                if(Paused) {Status=Loc.T("Đã tạm dừng · Tiếp tục để đồng bộ lại");wake.WaitOne(500);continue;}
                 long pending=Interlocked.Read(ref automaticScanAfter);
                 if(Interlocked.Exchange(ref scanRequested,0)==1||DateTime.UtcNow>=nextScan||(pending!=0&&Now>=pending)) {
                     Interlocked.Exchange(ref automaticScanAfter,0);
@@ -307,10 +309,10 @@ public sealed class MonitorEngine : IDisposable {
                     Interlocked.Exchange(ref nextAutomaticScanAllowed,cooldown);
                     if(Interlocked.Read(ref automaticScanAfter)!=0)Interlocked.Exchange(ref automaticScanAfter,cooldown);
                 }
-                Drain();if(!Scanning) Status="Đang theo dõi "+WatcherCount+" / "+Config.Roots.Count+" thư mục · Đồng bộ mỗi 30 phút";
+                Drain();if(!Scanning) Status=Loc.T("Đang theo dõi ")+WatcherCount+" / "+Config.Roots.Count+Loc.T(" thư mục · Đồng bộ mỗi 30 phút");
                 wake.WaitOne(queue.IsEmpty?400:15);
             }
-        } catch(Exception e) {Status="Theo dõi đã dừng: "+e.Message;Warn(e.ToString());}
+        } catch(Exception e) {Status=Loc.T("Theo dõi đã dừng: ")+e.Message;Warn(e.ToString());}
     }
     public void Dispose() {Stopping=true;wake.Set();lock(watchers){foreach(var w in watchers) w.Dispose();watchers.Clear();}if(worker!=null) worker.Join();Reader.Dispose();Database.Dispose();wake.Dispose();}
 }
