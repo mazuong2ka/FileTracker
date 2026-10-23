@@ -16,8 +16,8 @@
 
 </div>
 
-<!-- Add a screenshot here, for example:
-<p align="center"><img src="docs/screenshot.png" width="800" alt="FileTracker"></p>
+<!-- Optional app icon: add docs/icon.png, then uncomment the image below.
+<p align="center"><img src="docs/icon.png" width="96" alt="FileTracker blue folder app icon"></p>
 -->
 
 ---
@@ -36,8 +36,29 @@
 | ⏯️ **Pause / resume** | Manual rescan, plus automatic sync every 30 minutes. |
 | 🔔 **System tray** | Runs in the tray. Closing the window does not quit the app by default. |
 | 🚀 **Start with Windows** | Optional, **off** by default. |
+| 🌐 **English / Vietnamese** | Switch the app interface between English and Vietnamese. |
+| 🎨 **Custom app icon** | A custom blue folder icon for FileTracker. |
 
 FileTracker **never edits, moves or deletes your original files**.
+
+## 🆕 What's New in v1.1.0
+
+- Switch the app interface between **English and Vietnamese**.
+- Added a **custom blue folder app icon**.
+
+See [Releases](https://github.com/mazuong2ka/FileTracker/releases) for release notes and downloads.
+
+## 📸 Screenshots
+
+To show both interface languages, add `docs/screenshot-en.png` and `docs/screenshot-vi.png` to the repository. Uncomment each image below only after its corresponding file is available.
+
+<!-- English interface — uncomment after adding docs/screenshot-en.png:
+![FileTracker — English interface](docs/screenshot-en.png)
+-->
+
+<!-- Vietnamese interface — uncomment after adding docs/screenshot-vi.png:
+![FileTracker — Vietnamese interface](docs/screenshot-vi.png)
+-->
 
 ## 🚀 Quick start
 
@@ -129,7 +150,7 @@ Fully **Exit** the app, then copy the whole data folder.
 | File | Purpose |
 |---|---|
 | `Core.cs` | SQLite index (Windows built-in `winsqlite3`), watcher, reconciliation scan, settings storage |
-| `App.cs` | Vietnamese UI, search/filters, stars, CSV export, tray and settings |
+| `App.cs` | Bilingual English/Vietnamese UI, search/filters, stars, CSV export, tray and settings |
 | `build.ps1` | Builds with the C# compiler that ships with .NET Framework |
 | `tests/IntegrationTests.cs` | Functional tests that run in their own temporary folder |
 

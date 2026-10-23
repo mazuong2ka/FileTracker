@@ -16,8 +16,8 @@
 
 </div>
 
-<!-- Thêm ảnh chụp màn hình tại đây, ví dụ:
-<p align="center"><img src="docs/screenshot.png" width="800" alt="FileTracker"></p>
+<!-- Biểu tượng ứng dụng (tùy chọn): thêm docs/icon.png rồi bỏ comment của ảnh bên dưới.
+<p align="center"><img src="docs/icon.png" width="96" alt="Biểu tượng thư mục màu xanh dương của FileTracker"></p>
 -->
 
 ---
@@ -36,8 +36,29 @@
 | ⏯️ **Tạm dừng / tiếp tục** | Quét lại thủ công và tự đồng bộ mỗi 30 phút. |
 | 🔔 **Khay hệ thống** | Chạy dưới khay hệ thống. Đóng cửa sổ mặc định chưa thoát app. |
 | 🚀 **Khởi động cùng Windows** | Tùy chọn, mặc định **TẮT**. |
+| 🌐 **English / Tiếng Việt** | Chuyển giao diện ứng dụng giữa tiếng Anh và tiếng Việt. |
+| 🎨 **Biểu tượng ứng dụng riêng** | Biểu tượng thư mục màu xanh dương được thiết kế riêng cho FileTracker. |
 
 FileTracker **không có thao tác sửa, di chuyển hoặc xóa file gốc** của bạn.
+
+## 🆕 Có gì mới trong v1.1.0
+
+- Chuyển giao diện ứng dụng giữa **tiếng Anh và tiếng Việt**.
+- Thêm **biểu tượng ứng dụng riêng hình thư mục màu xanh dương**.
+
+Xem ghi chú phát hành và tải xuống tại [Releases](https://github.com/mazuong2ka/FileTracker/releases).
+
+## 📸 Ảnh chụp màn hình
+
+Để hiển thị giao diện của cả hai ngôn ngữ, thêm `docs/screenshot-en.png` và `docs/screenshot-vi.png` vào repository. Chỉ bỏ comment của từng ảnh bên dưới khi file tương ứng đã có.
+
+<!-- Giao diện tiếng Anh — bỏ comment sau khi thêm docs/screenshot-en.png:
+![FileTracker — giao diện tiếng Anh](docs/screenshot-en.png)
+-->
+
+<!-- Giao diện tiếng Việt — bỏ comment sau khi thêm docs/screenshot-vi.png:
+![FileTracker — giao diện tiếng Việt](docs/screenshot-vi.png)
+-->
 
 ## 🚀 Bắt đầu nhanh
 
@@ -129,7 +150,7 @@ Tham số `--tray` mở app ẩn dưới khay hệ thống.
 | File | Chức năng |
 |---|---|
 | `Core.cs` | Chỉ mục SQLite (`winsqlite3` có sẵn trong Windows), bộ theo dõi, quét đối chiếu, lưu cấu hình |
-| `App.cs` | Giao diện tiếng Việt, tìm/lọc, dấu sao, CSV, khay và cài đặt |
+| `App.cs` | Giao diện song ngữ Anh/Việt, tìm/lọc, dấu sao, CSV, khay và cài đặt |
 | `build.ps1` | Biên dịch bằng C# compiler đi kèm .NET Framework |
 | `tests/IntegrationTests.cs` | Kiểm tra chức năng trong thư mục tạm riêng |
 
