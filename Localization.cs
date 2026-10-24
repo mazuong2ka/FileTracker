@@ -1,10 +1,40 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 namespace FileTracker {
 public static class Loc {
     public static volatile string Language = "vi";
     public static readonly string[] CategoryKeys = {"", "Tài liệu", "Hình ảnh", "Video / Âm thanh", "Ứng dụng", "File nén", "Mã nguồn", "Kỹ thuật", "Khác"};
     static readonly Dictionary<string,string> English = new Dictionary<string,string> {
+        { "Bật", "On" },
+        { "Tắt", "Off" },
+        { "Chung", "General" },
+        { "Ngôn ngữ", "Language" },
+        { "Hủy thay đổi", "Discard changes" },
+        { "Tùy chỉnh cách FileTracker hoạt động trên máy bạn.", "Make FileTracker work the way you do." },
+        { "Khởi động cùng Windows", "Launch on Windows startup" },
+        { "Tự mở FileTracker dưới khay hệ thống khi đăng nhập.", "Start in the system tray when you sign in to Windows." },
+        { "Tiếp tục chạy khi đóng cửa sổ", "Keep running when the window closes" },
+        { "Giữ theo dõi file dưới khay hệ thống.", "Continue monitoring files in the system tray." },
+        { "Bỏ qua thư mục lập trình", "Skip development folders" },
+        { "Bỏ qua .git, node_modules, __pycache__, .venv và venv.", "Exclude .git, node_modules, __pycache__, .venv and venv." },
+        { "Áp dụng ngay cho giao diện và menu của ứng dụng.", "Apply immediately to the interface and app menus." },
+        { "KHÔNG GIAN LÀM VIỆC", "WORKSPACE" },
+        { "Tìm kiếm", "Search" },
+        { "Chỉ lưu trên máy", "Stored locally" },
+        { "Thư mục", "Folder" },
+        { "Loại file", "File type" },
+        { "Sắp xếp", "Sort order" },
+        { "Đặt lại bộ lọc", "Reset filters" },
+        { "Xóa tìm kiếm", "Clear search" },
+        { "Danh sách file", "File list" },
+        { "Trang trước", "Previous page" },
+        { "Trang sau", "Next page" },
+        { "Bỏ đánh dấu", "Unstar" },
+        { "Đang theo dõi", "Monitoring" },
+        { "Đã tạm dừng", "Paused" },
+        { "Đang đồng bộ…", "Syncing…" },
+        { "Không có file phù hợp", "No matching files" },
+        { "Thử đổi từ khóa hoặc đặt lại bộ lọc.", "Try another search or reset the filters." },
         { "Kh\u00f4ng m\u1edf \u0111\u01b0\u1ee3c FileTracker. N\u1ebfu app \u0111ang ch\u1ea1y, m\u1edf t\u1eeb bi\u1ec3u t\u01b0\u1ee3ng \u1edf khay h\u1ec7 th\u1ed1ng.\n\n", "Could not open FileTracker. If it is already running, open it from the system tray.\n\n" },
         { "FileTracker \u00b7 L\u1ed7i", "FileTracker \u00b7 Error" },
         { "FileTracker \u00b7 Theo d\u00f5i file", "FileTracker \u00b7 File monitoring" },
@@ -59,7 +89,7 @@ public static class Loc {
         { "\u0110\u00e1nh d\u1ea5u / B\u1ecf \u0111\u00e1nh d\u1ea5u", "Star / Unstar" },
         { "M\u1edf th\u01b0 m\u1ee5c", "Open folder" },
         { "Copy \u0111\u01b0\u1eddng d\u1eabn", "Copy path" },
-        { "\u0110\u00e1nh d\u1ea5u", "Star / Unstar" },
+        { "\u0110\u00e1nh d\u1ea5u", "Star" },
         { "Trang 1", "Page 1" },
         { "Trang ", "Page " },
         { "Chu\u1ea9n b\u1ecb theo d\u00f5i\u2026", "Preparing to monitor\u2026" },

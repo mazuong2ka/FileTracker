@@ -4,3 +4,4 @@ obj/
 *.pdb
 *.log
 *.tmp
+artifacts/ui-preview/
